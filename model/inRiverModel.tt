@@ -1,0 +1,255 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>  
+<#@ output extension=".cs" #>  
+
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="$(ProjectDir)/bin/Debug/inRiver.Remoting.dll" #>
+
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Xml" #>
+<#  
+ System.Xml.XmlDocument irModel = new System.Xml.XmlDocument();
+ irModel.Load(this.Host.ResolvePath("inRiver_PIM_Model.xml"));
+#>
+using System;
+
+using inRiver.Remoting;
+using inRiver.Remoting.Objects;
+
+namespace inRiver.Model
+{
+<#
+  List<string> cNames = new List<string>();
+  foreach(XmlNode eType in irModel.SelectNodes("/Model/EntityTypes/EntityType")) {
+    var cName = eType.SelectSingleNode("Id").InnerText;
+    cNames.Add(cName);
+#>   
+    public class <#= cName #> : EntityBase {
+       public <#= cName #>(Entity e) : base(e, "<#= cName #>") {
+       }
+
+<#
+  foreach (XmlNode fType in eType.SelectNodes("FieldTypes/FieldType")) {
+      var f = FieldGen(irModel, fType);
+#>
+       public <#= f.Item1 #> {
+          get => <#= f.Item2 #>;
+<# if (f.Item3 != null) { #>
+          set => <#= f.Item3 #>;
+<# } #>       }
+<# 
+  }
+#>
+    }
+
+<#
+  }
+#>
+    // Base class for typed entities
+    public class EntityBase {
+        private Entity entity;
+
+        protected EntityBase(Entity e, string expectedType) {
+            if (e.EntityType.Id != expectedType) {
+               throw new ArgumentException(e.EntityType.Id + " != " + expectedType);
+            }
+            entity = e;
+        }
+
+        // NPE or illegal cast should not happen on GetXXX
+        protected string GetString(string fName) {
+            Field f = entity.GetField(fName);
+            return (string)f.Data; 
+        }
+        protected void SetString(string fName, string value) {
+            Field f = entity.GetField(fName);
+            f.Data = value; 
+        }
+
+        protected LocaleString GetLocaleString(string fName) {
+            Field f = entity.GetField(fName);
+            return (LocaleString)f.Data; 
+        }
+        protected void SetLocaleString(string fName, LocaleString value) {
+            Field f = entity.GetField(fName);
+            f.Data = value; 
+        }
+
+        protected bool GetBoolean(string fName) {
+            Field f = entity.GetField(fName);
+            return (bool)f.Data; 
+        }
+        protected void SetBoolean(string fName, bool value) {
+            Field f = entity.GetField(fName);
+            f.Data = value; 
+        }
+
+        protected int GetInteger(string fName) {
+            Field f = entity.GetField(fName);
+            return (int)f.Data; 
+        }
+        protected void SetInteger(string fName, int value) {
+            Field f = entity.GetField(fName);
+            f.Data = value; 
+        }
+
+        protected double GetDouble(string fName) {
+            Field f = entity.GetField(fName);
+            return (double)f.Data;
+        }
+        protected void SetDouble(string fName, double value) {
+            Field f = entity.GetField(fName);
+            f.Data = value; 
+        }
+
+        protected DateTime GetDateTime(string fName) {
+            Field f = entity.GetField(fName);
+            return (DateTime)f.Data;
+        }
+        protected void SetDateTime(string fName, DateTime value) {
+            Field f = entity.GetField(fName);
+            f.Data = value; 
+        }
+
+        // CVL Handling
+        protected String[] GetStringArrayCVL(string fName) {
+            Field f = entity.GetField(fName);
+            if (f.Data == null) {
+                return null;
+            }
+            string[] keys = ((string)f.Data).Split(';');
+            string[] values = new string[keys.Length];
+            for (int i = 0; i < values.Length; i++) {
+                values[i] = (string)RemoteManager.ModelService.GetCVLValueByKey(keys[i], f.FieldType.CVLId).Value;
+            }
+
+            return values;
+        }
+        protected String GetStringCVL(string fName) {
+            Field f = entity.GetField(fName);
+            CVLValue cvlValue =  RemoteManager.ModelService.GetCVLValueByKey(f.Data.ToString(), f.FieldType.CVLId);
+            return (String)cvlValue.Value;
+        }
+        protected LocaleString GetLocaleStringCVL(string fName) {
+            Field f = entity.GetField(fName);
+            CVLValue cvlValue =  RemoteManager.ModelService.GetCVLValueByKey(f.Data.ToString(), f.FieldType.CVLId);
+            return (LocaleString)cvlValue.Value;
+        }
+        protected void SetCVLKey(string fName, string cvlKey) {
+            Field f = entity.GetField(fName);
+            f.Data = cvlKey; 
+        }
+
+        internal Entity GetEntity() {
+            return entity;
+        }
+
+        public override string ToString() {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder(entity.EntityType.Id + ":");
+            foreach (var f in entity.Fields) {
+               sb.Append(f.FieldType.Id); sb.Append("='");
+               sb.Append(f.Data); sb.Append("' ");
+            }
+            return sb.ToString();
+        }
+    }
+
+
+    public class EntityFactory {
+        public static EntityBase NewInstance(int id, LoadLevel loadLevel = LoadLevel.DataOnly) {
+            return NewInstance(RemoteManager.DataService.GetEntity(id, loadLevel));
+        }
+
+        public static EntityBase NewInstance(Entity e) {
+            if (e.LoadLevel == LoadLevel.Shallow) {
+                e = RemoteManager.DataService.GetEntity(e.Id, LoadLevel.DataOnly);
+            }
+
+            switch(e.EntityType.Id) {
+<# 
+  foreach(var name in cNames) { 
+#>
+                case "<#= name #>": return new <#= name #>(e);
+<#
+  }
+#>
+            }
+
+            throw new ArgumentException("Entity " + e.EntityType.Id + " is not part of model XML");
+        }
+    }
+}  
+
+
+
+<#+
+   public (string,string,string) FieldGen(System.Xml.XmlDocument irModel, XmlNode fType) {
+        string propName = fType.SelectSingleNode("Id").InnerText;
+        string dataType = fType.SelectSingleNode("DataType").InnerText;
+
+        bool multiValue = false;
+        bool.TryParse(fType.SelectSingleNode("Multivalue").InnerText, out multiValue);
+
+        bool readOnly = false;
+        bool.TryParse(fType.SelectSingleNode("ReadOnly").InnerText, out readOnly);
+
+        string dType; string getter; string setter;
+        if (dataType == "String") {
+            dType = "string"; 
+            getter = "GetString(\"" + propName +"\")";
+            setter = "SetString(\"" + propName +"\", value)";
+        }
+        else if (dataType == "LocaleString") {
+            dType = "LocaleString"; 
+            getter = "GetLocaleString(\"" + propName +"\")";
+            setter = "SetLocaleString(\"" + propName +"\", value)";
+        }
+        else if (dataType == "Boolean") {
+            dType = "bool"; 
+            getter = "GetBoolean(\"" + propName +"\")";
+            setter = "SetBoolean(\"" + propName +"\", value)";
+        }
+        else if (dataType == "Integer") {
+            dType = "int"; 
+            getter = "GetInteger(\"" + propName +"\")";
+            setter = "SetInteger(\"" + propName +"\", value)";
+        }
+        else if (dataType == "Double") {
+            dType = "double"; 
+            getter = "GetDouble(\"" + propName +"\")";
+            setter = "SetDouble(\"" + propName +"\", value)";
+        }
+        else if (dataType == "DateTime") {
+            dType = "DateTime"; 
+            getter = "GetDateTime(\"" + propName +"\")";
+            setter = "SetDateTime(\"" + propName +"\", value)";
+        }
+        else if (dataType == "CVL") {
+            string cvlId = fType.SelectSingleNode("CVLId").InnerText;
+            var cvl = irModel.SelectNodes("/Model/CVLs/CVL[Id = '" + cvlId + "']");
+            var cvlNode = cvl[0];
+
+            dType = cvlNode.SelectSingleNode("DataType").InnerText;//"CVL"; 
+            getter = "Get"+ dType + "CVL(\"" + propName +"\")";
+            setter = "SetCVLKey(\"" + propName +"\", value)";
+            setter = null;
+        }
+        else if (dataType == "File") {
+            dType = "object"; 
+            getter = "throw new NotImplementedException(\"" + propName +"\")";
+            setter = "throw new NotImplementedException(\"" + propName +"\" + value)";
+        }
+        else {
+            return ("// Unhandled type: " + dataType + " " + propName, "", "");
+        } 
+
+        if (readOnly) {
+            setter = null;
+        }
+
+        return (dType + " " + propName, getter, setter);
+   }
+#>
