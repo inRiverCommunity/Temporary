@@ -4,7 +4,7 @@ using System;
 
 namespace inRiverCommunity.Logging.Core.Loggers
 {
-    public class inRiverStandardLogger : ILogger
+    public class ControlCenterLogger : ILogger
     {
 
 
