@@ -6,7 +6,32 @@ using inRiverCommunity.Extensions.Core.Settings;
 
 namespace inRiverCommunity.Logging.Core
 {
-    public class LogContext : IExtensionLog
+
+
+    #region Settings class
+
+    public class LogContextSettings
+    {
+
+        [ExtensionSetting(
+            Name = "inRiverCommunity.LoggerTypes",
+            CollectionDelimiter = ",",
+            CollectionTrimValues = true,
+            CollectionRemoveEmptyValues = true
+        )]
+        public List<string> Loggers { get; set; } = new List<string>
+        {
+            "inRiverCommunity.Logging.Core.Loggers.inRiverStandardLogger",
+            "inRiverCommunity.Logging.Core.Loggers.ConsoleAppLogger",
+            "inRiverCommunity.Logging.Core.Loggers.RollingFileLogger"
+        };
+
+    }
+
+    #endregion
+
+
+    public class LogContext
     {
 
 
@@ -17,12 +42,53 @@ namespace inRiverCommunity.Logging.Core
         {
             LoggerList = new List<ILogger>();
 
+
+            // Get settings from extension
             var settings = context.GetSettings<LogContextSettings>();
 
-            foreach (var loggers in settings.Loggers)
+
+            // Loop loggers to create instances for
+            foreach (var logger in settings.Loggers)
             {
-                // TODO: Init loggers!
+                // Create instance
+                ILogger instance = null;
+
+                try
+                {
+                    instance = (ILogger)Activator.CreateInstance(Type.GetType(logger));
+                }
+                catch (Exception ex)
+                {
+                    context.Log(LogLevel.Error, $"Failed to create instance of logger '{logger}' for extension '{context.ExtensionId}'!", ex);
+                }
+
+                if (instance == null)
+                    continue;
+
+
+                // Initalize logger and add to list if successful
+                try
+                {
+                    instance.Initialize(context);
+
+                    LoggerList.Add(instance);
+                }
+                catch (Exception ex)
+                {
+                    context.Log(LogLevel.Error, $"Failed to initialize logger '{logger}' for extension '{context.ExtensionId}'!", ex);
+                }
             }
+        }
+
+
+        public List<Type> GetLoadedLoggerTypes()
+        {
+            var list = new List<Type>();
+
+            foreach (var logger in LoggerList)
+                list.Add(logger.GetType());
+
+            return list;
         }
 
 

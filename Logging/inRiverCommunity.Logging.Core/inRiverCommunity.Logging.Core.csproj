@@ -47,8 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EmptyLogContext.cs" />
+    <Compile Include="ILogger.cs" />
     <Compile Include="LogContext.cs" />
     <Compile Include="LogContextManager.cs" />
+    <Compile Include="Loggers\ConsoleAppLogger.cs" />
+    <Compile Include="Loggers\inRiverStandardLogger.cs" />
+    <Compile Include="Loggers\RollingFileLogger.cs" />
     <Compile Include="LoggingExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
