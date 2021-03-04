@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inRiverCommunity.Logging.Core", "inRiverCommunity.Logging.Core\inRiverCommunity.Logging.Core.csproj", "{7F35118B-BF24-463C-8E7E-B6BF30468A3B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F35118B-BF24-463C-8E7E-B6BF30468A3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F35118B-BF24-463C-8E7E-B6BF30468A3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F35118B-BF24-463C-8E7E-B6BF30468A3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F35118B-BF24-463C-8E7E-B6BF30468A3B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B9C9872B-F222-43C2-A92F-403AC47EFE8F}
+	EndGlobalSection
+EndGlobal
