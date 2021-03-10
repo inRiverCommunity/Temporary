@@ -52,13 +52,14 @@
     <Compile Include="LogContext.cs" />
     <Compile Include="LogContextManager.cs" />
     <Compile Include="Loggers\ConsoleAppLogger.cs" />
-    <Compile Include="Loggers\inRiverStandardLogger.cs" />
+    <Compile Include="Loggers\ControlCenterLogger.cs" />
     <Compile Include="Loggers\RollingFileLogger.cs" />
     <Compile Include="LoggingExtensionMethods.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="README.md" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,5 +1,9 @@
 ﻿# inRiverCommunity Logging Project
-[TODO: what the purpose is and why it's good!]
+This logging framework is meant to be a lightweight, easy-to-implement and close-to-standard way of logging.
+
+
+TODO: Can you use this https://timheuer.com/blog/building-a-code-analyzer-for-net/ to encourage users to use LogPlus instead of Log?
+
 
 ## Getting Started
 1. Add a reference to the inRiverCommunity.Logging NuGet package `[TODO: Upload and add link!]`.
@@ -9,24 +13,24 @@
 
 
 ## Provided loggers
+The loggers below are included in this logging framework.
 
 ### ControlCenterLogger
 Does what it says!
 
-**Full name:** `inRiverCommunity.Logging.Core.Loggers.ControlCenterLogger`
-**Requried settings:** None
+**Full name:** `inRiverCommunity.Logging.Core.Loggers.ControlCenterLogger`\
+**Requried settings:** `None`
 
 ### ConsoleAppLogger
 Also pretty self-explanatory.
 
-**Full name:** `inRiverCommunity.Logging.Core.Loggers.ConsoleAppLogger`
-**Requried settings:** None
-
+**Full name:** `inRiverCommunity.Logging.Core.Loggers.ConsoleAppLogger`\
+**Requried settings:** `None`
 
 ### RollingFileLogger
 Writes logs to a file on disk as they happen, using `File.AppendAllText`.
 
-**Full name:** `inRiverCommunity.Logging.Core.Loggers.RollingFileLogger`
+**Full name:** `inRiverCommunity.Logging.Core.Loggers.RollingFileLogger`\
 **Requried settings:**
 * `inRiverCommunity.RollingFileLogger.FilePath`, example value `@"C:\Temp\Logs\inRiverApp.{0}.{1}.log` (must be a full path!) where `{0}` is the ExtensionId and `{1}` is the `yyyy-MM-dd` timestamp.
 
@@ -117,6 +121,7 @@ namespace MyNamespace
 }
 ```
 
+
 ## How do I contribute
 
 Feel free to submit an issue or create a pull request with a fix. All ideas and feedback are appreciated, just reach out to any of the contributors below. Thank you for the support!
@@ -125,6 +130,7 @@ Feel free to submit an issue or create a pull request with a fix. All ideas and 
 ## Contributors
 
 * [Roy Eriksson](https://www.linkedin.com/in/roy-eriksson/)
+* [Tobias Månsson](https://www.linkedin.com/in/tobiasmansson/)
 
 Other people than mentioned above may have contributed to this project, have a look at the [contributors](https://github.com/inRiverCommunity/Extensions/graphs/contributors) page to see who they are.
 
